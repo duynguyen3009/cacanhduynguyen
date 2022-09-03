@@ -13,6 +13,8 @@ return [
     |
     */
 
+    // 'previous' => '&laquo; Trước',
+    // 'next' => 'Kế &raquo;',
     'previous' => '&laquo; Previous',
     'next' => 'Next &raquo;',
 
