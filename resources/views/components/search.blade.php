@@ -55,7 +55,7 @@
                 @endif
             @endforeach
         </form>
-        <button type="button" data-href="{{ route('form') }}" 
+        <button type="button" data-href="{{ route('admin.slider.form') }}" 
             class="btn btn-success"
             onclick="$('#transformSearch').attr('action', $(this).data('href')).submit()"
             >+ Thêm

@@ -11,5 +11,10 @@
         'path' => [
             'slider' => 'public\sliders',
         ],
+
+        'action' => [
+            'add' => 'thêm',
+            'edit' => 'chỉnh sửa',
+        ],
     ];
 ?>

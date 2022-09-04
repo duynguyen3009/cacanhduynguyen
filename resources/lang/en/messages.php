@@ -10,4 +10,5 @@ return [
     'incorrect_extension' => 'Không đúng định dạng file !',
     'update_status_success' => ":table :  :value \n được cập nhật trạng thái thành công!",
     'update_ordering_success' => ":table :  :value \n được cập nhật vị trí thành công!",
+    'delete_recored_success' => "Xóa thành công các id: :ids",
 ];

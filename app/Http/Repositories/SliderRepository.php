@@ -51,7 +51,7 @@ class SliderRepository
     {
         $record = MainModel::findOrFail($formFields['id']);
         
-        $status = ($formFields['status'] == 'active') ? 'inactive' : 'active';
+        $status = ($formFields['status'] == "true") ? 'active' : 'inactive';
         $record->status = $status;
         
         $record->save();

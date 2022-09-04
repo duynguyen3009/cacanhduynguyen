@@ -1,9 +1,9 @@
 <?php 
     return [
         'title' => [
-            'dashboard' => 'Dashboard',
-            'slider'    => 'Quản lý Slider',
-            'form'    => 'Quản lý Slider | Form',
+            'admin.dashboard'       => 'Dashboard',
+            'admin.slider.index'    => 'Quản lý Slider',
+            'admin.slider.form'     => 'Slider | Form',
         ]
     ];
 
