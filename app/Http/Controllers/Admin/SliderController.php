@@ -25,7 +25,7 @@ class SliderController extends Controller
         'ordering'  => 'DESC', 
         'id'        => 'DESC'
     ];
-    protected $storagePath = 'public/sliders' . DIRECTORY_SEPARATOR ;
+    protected $storagePath = 'public'. DIRECTORY_SEPARATOR. 'sliders' . DIRECTORY_SEPARATOR ;
     protected $defaultImg  = 'default.jpg';
 
     public function __construct(
@@ -77,15 +77,14 @@ class SliderController extends Controller
         //case edit
         if (isset($formFields['id'])) {
             $id = $this->sliderRepository->updateRecord($formFieldsAccept);
-            return redirect()
-                    ->route('slider', @$transformSearch['transform_search'])
-                    ->with('action_success', 'Bạn đã sửa thành công slider có id: ' . $id);
+            $action = config('params.action.edit');
         } else {
             $id = $this->sliderRepository->insert($formFieldsAccept);
-            return redirect()
-                    ->route('slider', @$transformSearch['transform_search'])
-                    ->with('action_success', 'Bạn đã thêm thành công slider có id: ' . $id);
+            $action = config('params.action.add');
         }
+        return redirect()
+                    ->route('admin.slider.index', @$transformSearch['transform_search'])
+                    ->with('action_success', "Bạn đã $action thành công slider có id: " . $id);
 
     }
 
@@ -112,25 +111,14 @@ class SliderController extends Controller
     public function updateStatus(Request $request)
     {
         $request = $request->all();
-
-        $classAfterUpdateStatus = ($request['current_class'] == 'success')  ? 'secondary' : 'success';
-        $textAfterUpdateStatus  = ($request['current_class'] == 'success')  ? 'Chưa kích hoạt' : 'Kích hoạt';
-        $valueAfterUpdateStatus = ($request['current_class'] == 'success')  ? 'inactive' : 'active';
-
-        $record      = $this->sliderRepository
+        $record  = $this->sliderRepository
                      ->updateStatus(Arr::only($request, ['id', 'status']));
-
         return response()->json([
-            'success'               => true,
-            'id'                    => $record->id,
-            'class_after_update'    => $classAfterUpdateStatus,
-            'text_after_update'     => $textAfterUpdateStatus,
-            'value_after_update'    => $valueAfterUpdateStatus,
-            'class_current'         => $request['current_class'],
-            'msg'                   => __('messages.update_status_success', ['table' => 'Slider', 'value' => $record->name]),
+            'success' => true,
+            'msg'     => __('messages.update_status_success', ['table' => 'Slider', 'value' => $record->name]),
         ]);
     }
-
+    
     public function updateOrdering(Request $request)
     {
         $request  = $request->all();
@@ -138,8 +126,8 @@ class SliderController extends Controller
         // Setup the validator
         $rules = ['ordering' => 'required|integer'];
         $messages = [
-                    'ordering.required'     => 'Vị trí không được để trống !',
-                    'ordering.integer'     => 'Vị trí phải là số nguyên !',
+                    'ordering.required'    => __('messages.required', ['attribute' => 'Vị trí']),
+                    'ordering.integer'     => __('messages.integer', ['attribute' => 'Vị trí']),
         ];
         $validator = Validator::make($request, $rules, $messages);
 
@@ -147,7 +135,6 @@ class SliderController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'id'      => $request['id'],
                 'errors'  => $validator->errors()->first()
 
             ], 422); // 400 being the HTTP code for an invalid request.
@@ -157,8 +144,6 @@ class SliderController extends Controller
 
         return response()->json([
             'success'  => true,
-            'id'       => $record->id,
-            'ordering' => $record->ordering,     
             'msg'      =>  __('messages.update_ordering_success', ['table' => 'Slider', 'value' => $record->name]),
         ]);
     }
@@ -190,7 +175,7 @@ class SliderController extends Controller
             DB::commit();
             return response()->json([
                 'success' => true,
-                'msg' => 'Xóa thành công các id: ' . implode(', ', $ids),
+                'msg' => __('messages.delete_recored_success', ['ids' => implode(', ', $ids)]),
             ]);
         } catch (\Exception $exception) {
             logger($exception->getMessage());

@@ -20,7 +20,7 @@
                     <th style="width: 30%">Nội dung</th>
                     <th style="width: 10%">Ngày bắt đầu</th>
                     <th style="width: 10%">Ngày kết thúc</th>
-                    <th style="width: 15%">Trạng thái</th>
+                    <th style="width: 8%">Trạng thái</th>
                     <th style="width: 10%">Vị trí</th>
                 </tr>
             </thead>
@@ -35,7 +35,7 @@
                         <td>{{ $i+1 }}</td>
                         <td class="col-1">
                           <a href="javascript:void(0)" 
-                            data-href="{{ route('form') }}"
+                            data-href="{{ route('admin.slider.form') }}"
                             data-id="{{ $record->id }}"
                             onclick="showFormEdit(this)">
                             {{ $record->name }}
@@ -69,16 +69,16 @@
                         </td>
                         <td>{{ $record->date_show_end }}</td>
                         <td>
-                            <a data-value="{{ $record->status }}" 
-                                data-id="{{ $record->id }}"
-                                data-current_class="{{$classStatus}}"
-                                class="btn btn-{{$classStatus}}" 
-                                style="width: 140px"
-                                id="status-{{ $record->id }}"
-                                onclick="updateStatus(this)"
-                            >
-                                {{ $valueStatus }}
-                            </a>
+                            <div class="custom-switch">
+                                <input type="checkbox" class="custom-control-input" 
+                                        {{ $record->status == 'active' ? 'checked' : ''}}
+                                        id="status-{{ $record->id }}" 
+                                        name="status"
+                                        data-id="{{ $record->id }}"
+                                        onclick="updateStatus(this)"
+                                >
+                                <label class="custom-control-label" for="status-{{ $record->id }}"></label>
+                            </div>
                         </td>
                         <td>
                             <input class="form-control ordering" 
@@ -87,7 +87,15 @@
                                   id="ordering-{{ $record->id }}"
                                   value="{{ $record->ordering }}" 
                                   readonly
+                                  onchange="updateOrdering(this)"
                             >
+                            {{-- <input class="form-control ordering" 
+                                  type="text" 
+                                  data-id="{{ $record->id }}"
+                                  id="ordering-{{ $record->id }}"
+                                  value="{{ $record->ordering }}" 
+                                  readonly
+                            > --}}
                             
                         </td>
                     </tr>
@@ -114,11 +122,10 @@
   <script type="text/javascript">
     function updateStatus(element)
     {
-      var url = '{{ route("updateStatus") }}';
+      var url = '{{ route("admin.slider.updateStatus") }}';
       var dataSend = {
-        id            : $(element).data('id'),
-        status        : $(element).data('value'),
-        current_class : $(element).data('current_class'),
+        id      : $(element).data('id'),
+        status  : $(element).is(':checked'),
       };
       $.ajax({
         type: "POST",
@@ -126,12 +133,6 @@
         data: dataSend,
         success: function (res) {
           if (res.success) {
-            $(element).removeClass('btn-' + res.class_current);
-            $(element).addClass('btn-' + res.class_after_update);
-            $(element).text('');
-            $(element).text(res.text_after_update);
-            $(element).data('value', res.value_after_update);
-            $(element).data('current_class', res.class_after_update);
             $.notify(res.msg, { 
                 className: 'success',
               }
@@ -147,21 +148,22 @@
     });
 
     //update ordering
-    $("input.ordering").change(function(){
-      var url = '{{ route("updateOrdering") }}';
+    function updateOrdering(element)
+    {
+      var url = '{{ route("admin.slider.updateOrdering") }}';
       var dataSend = {
-        id        : $(this).data('id'),
-        ordering  : $(this).val(),
+        id        : $(element).data('id'),
+        ordering  : $(element).val(),
       };
       $.ajax({
         type: "POST",
         url: url,
         data: dataSend,
         success: function (res) {
-          if (res.success) {
-            $('#ordering-' + res.id).prop('readonly', true);
-            $('#ordering-' + res.id).siblings('span.text-danger').remove();
-            $('#ordering-' + res.id).removeClass('is-invalid');
+        if (res.success) {
+            $(element).prop('readonly', true);
+            $(element).siblings('span.text-danger').remove();
+            $(element).removeClass('is-invalid');
             
             $.notify(res.msg, { 
                 className: 'success',
@@ -171,13 +173,13 @@
         },
         error: function(jqXHR, status, error) {
           var res = jqXHR.responseJSON;
-          $('#ordering-' + res.id).removeClass('is-invalid');
-          $('#ordering-' + res.id).addClass('is-invalid');
-          $('#ordering-' + res.id).siblings('span.text-danger').remove();
-          $('#ordering-' + res.id).after(`<span class="text-danger">${res.errors}</span>`);
+          $(element).removeClass('is-invalid');
+          $(element).addClass('is-invalid');
+          $(element).siblings('span.text-danger').remove();
+          $(element).after(`<span class="text-danger">${res.errors}</span>`);
         }
       });
-    });
+    }
 
     // delete
     function deleteData() {
@@ -205,7 +207,7 @@
            })
           .then((willDelete) => {
             if (willDelete) {
-              var url = "{{ route('deleteData') }}" ;
+              var url = "{{ route('admin.slider.deleteData') }}" ;
               var dataSend = selections.reduce(function(o, val) { o[val] = val; return o; }, {});
               $.ajax({
                 type: "POST",
