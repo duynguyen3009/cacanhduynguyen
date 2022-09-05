@@ -69,7 +69,7 @@
                         </td>
                         <td>{{ $record->date_show_end }}</td>
                         <td>
-                            <div class="custom-switch">
+                            <div class="custom-switch" style="position: relative">
                                 <input type="checkbox" class="custom-control-input" 
                                         {{ $record->status == 'active' ? 'checked' : ''}}
                                         id="status-{{ $record->id }}" 
@@ -81,14 +81,16 @@
                             </div>
                         </td>
                         <td>
-                            <input class="form-control ordering" 
-                                  type="text" 
-                                  data-id="{{ $record->id }}"
-                                  id="ordering-{{ $record->id }}"
-                                  value="{{ $record->ordering }}" 
-                                  readonly
-                                  onchange="updateOrdering(this)"
-                            >
+                            <div style="position: relative">
+                              <input class="form-control ordering" 
+                                    type="text" 
+                                    data-id="{{ $record->id }}"
+                                    id="ordering-{{ $record->id }}"
+                                    value="{{ $record->ordering }}" 
+                                    readonly
+                                    onchange="updateOrdering(this)"
+                              >
+                            </div>
                             {{-- <input class="form-control ordering" 
                                   type="text" 
                                   data-id="{{ $record->id }}"
@@ -133,7 +135,7 @@
         data: dataSend,
         success: function (res) {
           if (res.success) {
-            $.notify(res.msg, { 
+            $(element).notify(res.msg, { 
                 className: 'success',
               }
             );
@@ -165,7 +167,7 @@
             $(element).siblings('span.text-danger').remove();
             $(element).removeClass('is-invalid');
             
-            $.notify(res.msg, { 
+            $(element).notify(res.msg, { 
                 className: 'success',
               }
             );

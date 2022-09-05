@@ -69,22 +69,37 @@ class SliderController extends Controller
     }
 
     public function store(SliderRequest $request)
+    // public function store(Request $request)
     {
-        $formFields             = $request->all();
-        $formFields['image']    = $formFields['image'] == null ? $this->defaultImg : $formFields['image'];
-        $transformSearch        = Arr::only(request()->all(), ['transform_search']);
+        $formFields     = $request->all();
+        dd($formFields);
+        $file           = $request->file('image');
+        $fileName       = date("YmdHms") . '.' .$file->extension();
+        // dd($formFields);
+        $formFields['image']    = $fileName;
+        // $transformSearch        = Arr::only(request()->all(), ['transform_search']);
         $formFieldsAccept       = Arr::only($formFields, ['id', 'image', 'name', 'href', 'description' ,'status', 'ordering', 'date_show_start', 'date_show_end']);
         //case edit
         if (isset($formFields['id'])) {
+            // phải biết được nó có thay đổi hình ảnh hay không
+            dd($formFieldsAccept);
             $id = $this->sliderRepository->updateRecord($formFieldsAccept);
-            $action = config('params.action.edit');
+            // $action = config('params.action.edit');
         } else {
+           
+            $file->storeAs($this->storagePath, $fileName); 
             $id = $this->sliderRepository->insert($formFieldsAccept);
-            $action = config('params.action.add');
+            // $action = config('params.action.add');
+
+            return response()->json([
+                'success'   => true,
+                'url'       => route('admin.slider.index'),
+            ]);
         }
-        return redirect()
-                    ->route('admin.slider.index', @$transformSearch['transform_search'])
-                    ->with('action_success', "Bạn đã $action thành công slider có id: " . $id);
+
+        // return redirect()
+        //             ->route('admin.slider.index', @$transformSearch['transform_search'])
+        //             ->with('action_success', "Bạn đã $action thành công slider có id: " . $id);
 
     }
 

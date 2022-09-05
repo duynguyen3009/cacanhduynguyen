@@ -20,18 +20,10 @@
 
     <!-- Main content -->
     <section class="content">
-        <form action="{{ route('admin.slider.store') }}" method="post" id="formAdd">
+        <form action="{{ route('admin.slider.store') }}" method="post" id="formAdd" enctype="multipart/form-data">
             @csrf
             @if (!empty($record))
                 <input type="hidden" name="id" value="{{ $record->id }}">
-            @endif
-            <!-- transform_search -->
-            @if (isset($request['transform_search']))
-                @foreach ($request['transform_search'] as $column => $v)
-                    @if ($v != null || $v != 0)
-                        <input type="hidden" name="transform_search[{{$column}}]" value="{{ $v }}" /> 
-                    @endif
-                @endforeach
             @endif
             
             <div class="row">
@@ -50,43 +42,40 @@
                             @foreach ($blade['inputs'] as $column => $config)
                                 @switch($config['type'])
                                     @case('input')
-                                        <div class="form-group">
+                                        <div class="form-group mb-05">
                                             <label for="{{ $column }}">{{ $config['label'] }}</label>
                                             <span class="text-danger font-weight-bold">*</span>
-                                            <input type="text" id="{{ $column }}" name="{{ $column }}" value="{{ old($column, @$record->$column) }}" class="form-control @error($column) is-invalid @enderror">
+                                            <input type="text" id="{{ $column }}" name="{{ $column }}" value="{{ old($column, @$record->$column) }}" class="form-control">
                                         </div>
-                                        @error($column)
-                                            <div class="text-danger" style="margin-top: -15px">{{ $message }}</div>
-                                        @enderror
+                                        <span class="text-danger error" id="{{ $column }}_error" ></span>
+                                        <br />
                                         <br />
                                     @break
                                     @case('datepicker')
-                                        <div class="form-group has-feedback">
+                                        <div class="form-group has-feedback mb-05">
                                             <label for="{{ $column }}">{{ $config['label'] }}</label>
                                             <span class="text-danger font-weight-bold">*</span>
-                                            <input type="text" name="{{ $column }}" value="{{ old($column, @$record->$column) }}" class="form-control datepicker @error($column) is-invalid @enderror" id="{{ $column }}">
+                                            <input type="text" name="{{ $column }}" value="{{ old($column, @$record->$column) }}" class="form-control datepicker" id="{{ $column }}">
                                         </div>
-                                        @error($column)
-                                            <div class="text-danger" style="margin-top: -15px">{{ $message }}</div>
-                                        @enderror
+                                        <span class="text-danger error" id="{{ $column }}_error" ></span>
+                                        <br />
                                         <br />
                                     @break
                                     @case('textarea')
-                                        <div class="form-group">
+                                        <div class="form-group mb-05">
                                             <label for="{{ $column }}">{{ $config['label'] }}</label>
                                             <span class="text-danger font-weight-bold">*</span>
-                                            <textarea id="{{ $column }}" name="{{ $column }}" class="form-control @error($column) is-invalid @enderror" rows="4">{{ old($column, @$record->$column) }}</textarea>
+                                            <textarea id="{{ $column }}" name="{{ $column }}" class="form-control" rows="4">{{ old($column, @$record->$column) }}</textarea>
                                         </div>
-                                        @error($column)
-                                            <div class="text-danger" style="margin-top: -15px">{{ $message }}</div>
-                                        @enderror
+                                        <span class="text-danger error" id="{{ $column }}_error" ></span>
+                                        <br />
                                         <br />
                                     @break
                                     @case('select')
-                                        <div class="form-group">
+                                        <div class="form-group mb-05">
                                             <label for="{{ $column }}">{{ $config['label'] }}</label>
                                             <span class="text-danger font-weight-bold">*</span>
-                                            <select class="form-control @error($column) is-invalid @enderror" name="{{ $column }}">
+                                            <select class="form-control" name="{{ $column }}">
                                                 @foreach ($status as $key => $v)
                                                     <option value="{{ $key }}" {{ (old($column) == $key) || (@$record->$column == $key) ? "selected" :""}}>
                                                         {{ $v }}
@@ -94,9 +83,8 @@
                                                 @endforeach
                                             </select>
                                         </div>
-                                        @error($column)
-                                            <div class="text-danger" style="margin-top: -15px">{{ $message }}</div>
-                                        @enderror
+                                        <span class="text-danger error" id="{{ $column }}_error" ></span>
+                                        <br />
                                         <br />
                                     @break
                                 @endswitch
@@ -120,12 +108,15 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="image">Hình ảnh</label>
-                                <input type="file" name="file_image" id="image" class="form-control-file" accept="image/*">
-                                <input type="hidden" name="image" value="{{ !empty($record) ? $record->image : '' }}">
+                                <input type="file" name="image" class="form-control-file" accept="image/*">
+                                {{-- <input type="hidden" name="image" value="{{ !empty($record) ? $record->image : '' }}"> --}}
                             </div>
+                            {{-- <div class="form-group" id="preview-image">
+                            </div> --}}
                             <div class="form-group" id="preview-image">
                                 @if (!empty($record))
                                      <img src="{{ asset("storage/sliders") . '/' .$record->image }}" width="200" height="100"/>
+                                     <input type="hidden" name="image" value="{{ $record->image }}" >
                                 @endif
                             </div>
                         </div>
@@ -138,38 +129,88 @@
                 </div>
             </div>
         </form>
+
+        <form action="#" method="get" id="tmpForm">
+          <!-- transform_search -->
+          @if (isset($request['transform_search']))
+            @foreach ($request['transform_search'] as $column => $v)
+                @if ($v != null || $v != 0)
+                    {{-- <input type="hidden" name="transform_search[{{$column}}]" value="{{ $v }}" />  --}}
+                    <input type="hidden" name="{{$column}}" value="{{ $v }}" /> 
+                @endif
+            @endforeach
+          @endif
+        </form>
     </section>
     <br />
     <!-- /.content -->
 
+@push('css')
+  <style>
+    .mb-05 {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+@endpush
 @push('js')
     <script type="text/javascript">
-      $("input[type=file][name=file_image]").on('change', function() {
-        event.preventDefault();
-        var prvImg    = $('div#preview-image');
-        var formData  = new FormData($('#formAdd')[0]);
-        var url       = '{{ route("admin.slider.uploadImage") }}';
-        $.ajax({
-          type: "POST",
-          url: url,
-          data: formData,
-          // enctype: 'multipart/form-data',
-          contentType: false,
-          processData: false,
-          success: function (res) {
-            if (res.error) {
-              alert(res.msg);
-              return
-            }
-            var src = '{{ asset("storage/sliders") }}' + '/' + res.file_name;
-            var img = `<img src="${src}" width="200" height="100"/>`;
-            prvImg.empty();
-            prvImg.append(img);
-            $('input[name=image]').val(res.file_name);
+      //Reset input file
+      $('input[type="file"][name="image"]').val('');
+
+      //Image preview
+      $('input[type="file"][name="image"]').on('change', function(){
+          var img_path    = $(this)[0].value;
+          var previewImg  = $('#preview-image');
+          var extension   = img_path.substring(img_path.lastIndexOf('.')+1).toLowerCase();
+
+          const extensions  = ["jpeg", "jpg", "png"];
+          isExtAccept       = extensions.includes(extension);
+          
+          if (!(isExtAccept)) {
+            $(previewImg).empty();
+            $(previewImg).html("<span class='text-danger'>Định dạng không hợp lệ </span>");
+          } else {
+              if (typeof(FileReader) != 'undefined') {
+                previewImg.empty();
+                var reader = new FileReader();
+                reader.onload = function(e){
+                    $('<img/>',{'src':e.target.result,  'style':'max-width:250px; max-height: 150px; margin-bottom:10px;'}).appendTo(previewImg);
+                }
+                previewImg.show();
+                reader.readAsDataURL($(this)[0].files[0]);
+              } else {
+                $(previewImg).html("<span class='text-danger'>Định dạng không hợp lệ </span>");
+              }
           }
-        });
+
       });
-      
+
+      // save
+      $('#formAdd').on('submit', function(e){
+          e.preventDefault();
+          var form = this;
+          $.ajax({
+              url     : $(form).attr('action'),
+              method  : $(form).attr('method'),
+              data    : new FormData(form),
+              processData:false,
+              dataType:'json',
+              contentType:false,
+              beforeSend:function(){
+                  $(form).find('span.error').text('');
+              },
+              success:function(res){
+                  if (res.success) {
+                    $('form#tmpForm').attr('action', res.url).submit();
+                  }
+              },
+              error: function(jqXHR, status, error) {
+                $.each(jqXHR.responseJSON.errors, function (column, msg){
+                    $(form).find('span#'+column+'_error').text(msg);
+                });
+              }
+          });
+      });
     </script>
 @endpush
 @endsection 
