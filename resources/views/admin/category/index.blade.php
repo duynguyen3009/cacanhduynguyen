@@ -1,6 +1,3 @@
-@php
-    $pathImg = "storage".DIRECTORY_SEPARATOR."sliders";
-@endphp
 @extends('admin.layouts.master')
 @section('main')
 
@@ -19,54 +16,25 @@
                 <tr>
                     <th style="width: 3%"><input type="checkbox" name="check_all" id="check_all" onclick="base.list.toggleCheckboxSelection(this)"></th>
                     <th style="width: 3%">#</th>
-                    <th style="width: 15%">Tên Slider</th>
-                    <th style="width: 30%">Nội dung</th>
-                    <th style="width: 10%">Ngày bắt đầu</th>
-                    <th style="width: 10%">Ngày kết thúc</th>
+                    <th style="width: 15%">Tên danh mục</th>
                     <th style="width: 8%">Trạng thái</th>
                     <th style="width: 10%">Vị trí</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($records as $i => $record)
+                 @foreach ($records as $i => $record)
                     <tr>
                         <td><input type="checkbox" name="selections[]" value="{{ $record->id }}"></td>
                         <td>{{ $i+1 }}</td>
                         <td class="col-1">
                           <a href="javascript:void(0)" 
-                            data-href="{{ route('admin.slider.form') }}"
+                            data-href="{{ route('admin.category.form') }}"
                             data-id="{{ $record->id }}"
                             onclick="base.list.redirectToEditPage(this, 'transformSearch')">
                             {{ $record->name }}
                           </a>
                         </td>
-
-                        <td>
-                            <div class="row" >
-                                <div class="col-12">
-                                    <img src="{{ asset($pathImg) . DIRECTORY_SEPARATOR . $record->image }}" width="100%" height="100"/>
-                                </div>
-                            </div>
-                            <div class="row" >
-                                <div class="col-12" style="
-                                    white-space: nowrap; 
-                                    width: 50px; 
-                                    overflow: hidden;
-                                    text-overflow: ellipsis; 
-                                ">
-                                    {{ $record->description }}
-                                </div>
-                            </div>
-                            <div class="row" >
-                                <div class="col-12">
-                                    <a href="{{ $record->href }}">Liên kết</a>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            {{ $record->date_show_start }}
-                        </td>
-                        <td>{{ $record->date_show_end }}</td>
+                        
                         <td>
                             <div class="custom-switch" style="position: relative">
                                 <input type="checkbox" class="custom-control-input" 
@@ -74,7 +42,7 @@
                                         id="status-{{ $record->id }}" 
                                         name="status"
                                         data-id="{{ $record->id }}"
-                                        data-href="{{ route("admin.slider.updateStatus") }}"
+                                        data-href="{{ route("admin.category.updateStatus") }}"
                                         onclick="base.list.updateStatus(this)"
                                 >
                                 <label class="custom-control-label" for="status-{{ $record->id }}"></label>
@@ -87,14 +55,14 @@
                                     data-id="{{ $record->id }}"
                                     id="ordering-{{ $record->id }}"
                                     value="{{ $record->ordering }}" 
-                                    data-href="{{ route("admin.slider.updateOrdering") }}"
+                                    data-href="{{ route("admin.category.updateOrdering") }}"
                                     readonly
                                     onchange="base.list.updateOrdering(this)"
                               >
                             </div>
                         </td>
                     </tr>
-                @endforeach
+                @endforeach 
             </tbody>
         </table>
     </div>

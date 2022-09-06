@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\SliderController;
+use App\Http\Controllers\Admin\CategoryController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -43,6 +44,17 @@ Route::group([
             Route::post('delete-data', [SliderController::class, 'deleteData'])->name('deleteData');
             Route::post('update-status', [SliderController::class, 'updateStatus'])->name('updateStatus');
             Route::post('update-ordering', [SliderController::class, 'updateOrdering'])->name('updateOrdering');
+        });
+
+        //CATEGORY
+        $category = 'category';
+        Route::group(['prefix'=> $category, 'as'=> $category .'.'], function(){
+            Route::get('/', [CategoryController::class, 'index'])->name('index');
+            Route::any('form', [CategoryController::class, 'form'])->name('form');
+            Route::post('store', [CategoryController::class, 'store'])->name('store');
+            Route::post('delete-data', [CategoryController::class, 'deleteData'])->name('deleteData');
+            Route::post('update-status', [CategoryController::class, 'updateStatus'])->name('updateStatus');
+            Route::post('update-ordering', [CategoryController::class, 'updateOrdering'])->name('updateOrdering');
         });
     });
 });

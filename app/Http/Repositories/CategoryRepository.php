@@ -1,10 +1,10 @@
 <?php 
 
 namespace App\Http\Repositories;
-use App\Models\Sliders as MainModel;
+use App\Models\Categories as MainModel;
 use App\Helpers\Formatter;
 
-class SliderRepository
+class CategoryRepository
 {
 
     public function list($request)
@@ -27,14 +27,9 @@ class SliderRepository
     {
         $record = MainModel::findOrFail($formFields['id']);
 
-        $record->image              = $formFields['image'];
         $record->name               = $formFields['name'];
-        $record->href               = $formFields['href'];
-        $record->description        = $formFields['description'];
         $record->status             = $formFields['status'];
         $record->ordering           = $formFields['ordering'];
-        $record->date_show_start    = $formFields['date_show_start'];
-        $record->date_show_end      = $formFields['date_show_end'];
         
         $record->save();
 
@@ -73,10 +68,10 @@ class SliderRepository
         return $record;
     }
 
-    public function getRecords($ids)
-    {
-        $records = MainModel::whereIn('id', $ids);
+    // public function getRecords($ids)
+    // {
+    //     $records = MainModel::whereIn('id', $ids);
 
-        return $records;
-    }
+    //     return $records;
+    // }
 }

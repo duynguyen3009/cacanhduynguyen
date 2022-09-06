@@ -3,36 +3,32 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Repositories\SliderRepository;
-use App\Http\Requests\Admin\SliderRequest;
+use App\Http\Repositories\CategoryRepository;
+use App\Http\Requests\Admin\CategoryRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use DB;
 
-class SliderController extends Controller
+class CategoryController extends Controller
 {
-    protected $sliderRepository;
-    protected $fieldsAcceptSearch   = ['id', 'name', 'href', 'description'];
+    protected $categoryRepository;
+    protected $fieldsAcceptSearch   = ['id', 'name'];
     protected $fieldsAcceptOrdering = [ // show select để orderBy
         ''              => 'Sắp xếp',
         'id'            => 'Id', 
         'name'          => 'Tên', 
-        'href'          => 'Href', 
-        'description'   => 'Miêu tả',
         'ordering'      => 'Vị trí',
     ];
     protected $defaultOrderBy = [
         'ordering'  => 'DESC', 
         'id'        => 'DESC'
     ];
-    protected $storagePath = 'public'. DIRECTORY_SEPARATOR. 'sliders' . DIRECTORY_SEPARATOR ;
-    protected $defaultImg  = 'default.jpg';
 
     public function __construct(
-        SliderRepository $sliderRepository
+        CategoryRepository $categoryRepository
     ) {
-        $this->sliderRepository = $sliderRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     public function index()
@@ -42,9 +38,9 @@ class SliderController extends Controller
         $request['fieldsAcceptOrdering']    = $this->fieldsAcceptOrdering;
         $request['defaultOrderBy']          = $this->defaultOrderBy;
 
-        $records = $this->sliderRepository->list($request);
+        $records = $this->categoryRepository->list($request);
 
-        return view('admin.slider.index', compact('records', 'request'));
+        return view('admin.category.index', compact('records', 'request'));
     }
 
     public function form()
@@ -54,52 +50,32 @@ class SliderController extends Controller
 
         //case edit
         if (isset($formFields['id'])) {
-            $record = $this->sliderRepository->getRecord($formFields['id']);
+            $record = $this->categoryRepository->getRecord($formFields['id']);
         }
 
         $request = Arr::only($formFields, ['transform_search']);
 
-        return view('admin.slider.form', compact('request', 'record'));
+        return view('admin.category.form', compact('request', 'record'));
     }
 
-    public function store(SliderRequest $request)
+    public function store(CategoryRequest $request)
     {
         $formFields     = $request->all();
-        $file           = $request->file('image');
-        $fileName       = null;
-        if (!empty($file)) {
-            $fileName               = date("YmdHms") . '.' .$file->extension();
-            $formFields['image']    = $fileName;
-        } 
         
-        $formFieldsAccept       = Arr::only($formFields, ['id', 'image', 'name', 'href', 'description' ,'status', 'ordering', 'date_show_start', 'date_show_end']);
+        $formFieldsAccept       = Arr::only($formFields, ['id', 'name', 'status', 'ordering']);
 
         //case edit
         if (isset($formFields['id'])) {
-            if (isset($formFieldsAccept['image'])) { // chọn ảnh mới
-                $imageName      = $formFields['old_image'];
-                $pathImageName  = storage_path('app' . DIRECTORY_SEPARATOR . $this->storagePath . $imageName);
-                if (!empty($imageName)) {
-                    if (file_exists($pathImageName)) {
-                        unlink($pathImageName);
-                    } 
-                } 
-                $file->storeAs($this->storagePath, $fileName); 
-
-            } else { // không chọn ảnh mới
-                $formFieldsAccept['image'] = $formFields['old_image'];
-            }
-            $id = $this->sliderRepository->updateRecord($formFieldsAccept);
+            $id = $this->categoryRepository->updateRecord($formFieldsAccept);
             session()->flash('action_success', __('messages.update_success', ['attribute' => $id]));
             
         } else {
-            $file->storeAs($this->storagePath, $fileName); 
-            $this->sliderRepository->insert($formFieldsAccept);
+            $this->categoryRepository->insert($formFieldsAccept);
             session()->flash('action_success', __('messages.insert_success', ['attribute' => $formFieldsAccept['name']]));
         }
         return response()->json([
             'success'   => true,
-            'url'       => route('admin.slider.index'),
+            'url'       => route('admin.category.index'),
         ]);
 
     }
@@ -107,7 +83,7 @@ class SliderController extends Controller
     public function updateStatus(Request $request)
     {
         $request = $request->all();
-        $record  = $this->sliderRepository
+        $record  = $this->categoryRepository
                      ->updateStatus(Arr::only($request, ['id', 'status']));
         return response()->json([
             'success' => true,
@@ -135,7 +111,7 @@ class SliderController extends Controller
 
             ], 422); // 400 being the HTTP code for an invalid request.
         }
-        $record   = $this->sliderRepository
+        $record   = $this->categoryRepository
                      ->updateOrdering(Arr::only($request, ['id', 'ordering']));
 
         return response()->json([
@@ -151,22 +127,8 @@ class SliderController extends Controller
 
         try {
             DB::beginTransaction();
-
-            // delete image
-            $records = $this->sliderRepository->getRecords($ids)->get(); // lấy nhiều dòng, dựa vào ids
-            foreach ($records as $record) {
-                $imageName      = $record->image;
-                $pathImageName  = storage_path('app' . DIRECTORY_SEPARATOR .$this->storagePath . $imageName);
-                if (!empty($imageName)) {
-                    if (file_exists($pathImageName)) {
-                        unlink($pathImageName);
-                    } 
-                } else {
-                    continue;
-                }
-            }
             // delete database
-            $record     = $this->sliderRepository->deleteData($ids);
+            $record     = $this->categoryRepository->deleteData($ids);
 
             DB::commit();
             return response()->json([
