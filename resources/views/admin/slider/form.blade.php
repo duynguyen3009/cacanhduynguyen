@@ -5,7 +5,7 @@
         'inputs' => require(app_path('Helpers/Form/config/slider.php'))
     ];
 @endphp
-@extends('layouts.master')
+@extends('admin.layouts.master')
 @section('main')
     <!-- Content Header (Page header) -->
     <section class="content-header">
@@ -39,6 +39,22 @@
                             </div>
                         </div>
                         <div class="card-body">
+                            <div class="form-group">
+                                <label for="image">Hình ảnh</label>
+                                <span class="text-danger font-weight-bold">*</span>
+                                <input type="file" name="image" class="form-control-file" accept="image/*">
+                                @if (!empty($record))
+                                    <input type="hidden" name="old_image" value="{{ $record->image }}" >
+                                @endif
+                            </div>
+                            <div class="form-group" id="preview-image">
+                                @if (!empty($record))
+                                     <img src="{{ asset("storage/sliders") . '/' .$record->image }}" width="200" height="100"/>
+                                @endif
+                            </div>
+                            <span class="text-danger error" id="image_error" ></span>
+                            <br />
+                            <br />
                             @foreach ($blade['inputs'] as $column => $config)
                                 @switch($config['type'])
                                     @case('input')
@@ -89,39 +105,10 @@
                                     @break
                                 @endswitch
                             @endforeach
-
-                        </div>
-                        <!-- /.card-body -->
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="card card-success">
-                        <div class="card-header">
-                            <h3 class="card-title text-uppercase">{{ $titleForm }}</h3>
-    
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                                <i class="fas fa-minus"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="image">Hình ảnh</label>
-                                <input type="file" name="image" class="form-control-file" accept="image/*">
-                                {{-- <input type="hidden" name="image" value="{{ !empty($record) ? $record->image : '' }}"> --}}
-                            </div>
-                            {{-- <div class="form-group" id="preview-image">
-                            </div> --}}
-                            <div class="form-group" id="preview-image">
-                                @if (!empty($record))
-                                     <img src="{{ asset("storage/sliders") . '/' .$record->image }}" width="200" height="100"/>
-                                     <input type="hidden" name="image" value="{{ $record->image }}" >
-                                @endif
-                            </div>
                         </div>
                     </div>
                 </div>
+               
             </div>    
             <div class="row">
                 <div class="col-6">
@@ -135,7 +122,6 @@
           @if (isset($request['transform_search']))
             @foreach ($request['transform_search'] as $column => $v)
                 @if ($v != null || $v != 0)
-                    {{-- <input type="hidden" name="transform_search[{{$column}}]" value="{{ $v }}" />  --}}
                     <input type="hidden" name="{{$column}}" value="{{ $v }}" /> 
                 @endif
             @endforeach
@@ -205,9 +191,19 @@
                   }
               },
               error: function(jqXHR, status, error) {
-                $.each(jqXHR.responseJSON.errors, function (column, msg){
-                    $(form).find('span#'+column+'_error').text(msg);
-                });
+                switch (jqXHR.status) {
+                    case 422:
+                      $.each(jqXHR.responseJSON.errors, function (column, msg){
+                        $(form).find('span#'+column+'_error').text(msg);
+                      });
+                    break;
+                
+                    default:
+                      alert('SERVER ERROR');
+                      return
+                    break;
+                }
+                
               }
           });
       });

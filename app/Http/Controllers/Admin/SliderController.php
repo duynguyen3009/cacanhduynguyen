@@ -19,7 +19,8 @@ class SliderController extends Controller
         'id'            => 'Id', 
         'name'          => 'Tên', 
         'href'          => 'Href', 
-        'description'   => 'Miêu tả'
+        'description'   => 'Miêu tả',
+        'ordering'      => 'Vị trí',
     ];
     protected $defaultOrderBy = [
         'ordering'  => 'DESC', 
@@ -40,13 +41,6 @@ class SliderController extends Controller
         $request['fieldsAcceptSearch']      = $this->fieldsAcceptSearch;
         $request['fieldsAcceptOrdering']    = $this->fieldsAcceptOrdering;
         $request['defaultOrderBy']          = $this->defaultOrderBy;
-
-        // chỗ này sẽ dùng lại nhiều lần
-        if (isset($request['o']) && $request['o'] != null) {
-            $collectDefaultOrderBy = collect($this->defaultOrderBy);
-            $collectDefaultOrderBy->prepend('DESC', $request['o']);
-            $request['defaultOrderBy'] = $collectDefaultOrderBy->all();
-        } 
 
         $records = $this->sliderRepository->list($request);
 
@@ -69,59 +63,65 @@ class SliderController extends Controller
     }
 
     public function store(SliderRequest $request)
-    // public function store(Request $request)
     {
         $formFields     = $request->all();
-        dd($formFields);
         $file           = $request->file('image');
-        $fileName       = date("YmdHms") . '.' .$file->extension();
-        // dd($formFields);
-        $formFields['image']    = $fileName;
-        // $transformSearch        = Arr::only(request()->all(), ['transform_search']);
+        $fileName       = null;
+        if (!empty($file)) {
+            $fileName               = date("YmdHms") . '.' .$file->extension();
+            $formFields['image']    = $fileName;
+        } 
+        
         $formFieldsAccept       = Arr::only($formFields, ['id', 'image', 'name', 'href', 'description' ,'status', 'ordering', 'date_show_start', 'date_show_end']);
+
         //case edit
         if (isset($formFields['id'])) {
-            // phải biết được nó có thay đổi hình ảnh hay không
-            dd($formFieldsAccept);
+            if (isset($formFieldsAccept['image'])) { // chọn ảnh mới
+                $imageName      = $formFields['old_image'];
+                $pathImageName  = storage_path('app' . DIRECTORY_SEPARATOR . $this->storagePath . $imageName);
+                if (!empty($imageName)) {
+                    if (file_exists($pathImageName)) {
+                        unlink($pathImageName);
+                    } 
+                } 
+                $file->storeAs($this->storagePath, $fileName); 
+
+            } else { // không chọn ảnh mới
+                $formFieldsAccept['image'] = $formFields['old_image'];
+            }
             $id = $this->sliderRepository->updateRecord($formFieldsAccept);
             // $action = config('params.action.edit');
         } else {
-           
             $file->storeAs($this->storagePath, $fileName); 
             $id = $this->sliderRepository->insert($formFieldsAccept);
             // $action = config('params.action.add');
-
-            return response()->json([
-                'success'   => true,
-                'url'       => route('admin.slider.index'),
-            ]);
         }
-
-        // return redirect()
-        //             ->route('admin.slider.index', @$transformSearch['transform_search'])
-        //             ->with('action_success', "Bạn đã $action thành công slider có id: " . $id);
+        return response()->json([
+            'success'   => true,
+            'url'       => route('admin.slider.index'),
+        ]);
 
     }
 
     #php artisan storage:link
-    public function uploadImage(Request $request)
-    {
-        $file       = $request->file('file_image');
-        $extsAccept = ['jpg', 'png'];
-        $ext        = $file->extension();
-        if (!in_array($ext, $extsAccept)) {
-            return response()->json([
-                'error' => true,
-                'msg'   => __('messages.incorrect_extension'),
-            ]);
-        }
-        $fileName   = date("YmdHms") . $file->getClientOriginalName();
-        $file->storeAs($this->storagePath, $fileName); 
+    // public function uploadImage(Request $request)
+    // {
+    //     $file       = $request->file('file_image');
+    //     $extsAccept = ['jpg', 'png'];
+    //     $ext        = $file->extension();
+    //     if (!in_array($ext, $extsAccept)) {
+    //         return response()->json([
+    //             'error' => true,
+    //             'msg'   => __('messages.incorrect_extension'),
+    //         ]);
+    //     }
+    //     $fileName   = date("YmdHms") . $file->getClientOriginalName();
+    //     $file->storeAs($this->storagePath, $fileName); 
 
-        return response()->json([
-            'file_name'      => $fileName,
-        ]);
-    }
+    //     return response()->json([
+    //         'file_name'      => $fileName,
+    //     ]);
+    // }
 
     public function updateStatus(Request $request)
     {
@@ -130,7 +130,7 @@ class SliderController extends Controller
                      ->updateStatus(Arr::only($request, ['id', 'status']));
         return response()->json([
             'success' => true,
-            'msg'     => __('messages.update_status_success', ['table' => 'Slider', 'value' => $record->name]),
+            'msg'     => __('messages.update_success', ['attribute' => 'status']),
         ]);
     }
     
@@ -159,7 +159,7 @@ class SliderController extends Controller
 
         return response()->json([
             'success'  => true,
-            'msg'      =>  __('messages.update_ordering_success', ['table' => 'Slider', 'value' => $record->name]),
+            'msg'     => __('messages.update_success', ['attribute' => 'vị trí']),
         ]);
     }
 

@@ -8,16 +8,11 @@ class SliderRepository
 
     public function list($request)
     {
-        $defaultOrderBy = $request['defaultOrderBy'] ?? [];
-        $qb             = MainModel::query();
+        $qb = MainModel::query();
        
-        if (!empty($defaultOrderBy)) {
-            foreach ($defaultOrderBy as $column => $v) {
-                $qb = $qb->orderBy($column, $v);
-            }
-        }
-
-        $qb = $qb->filter($request)->cursorPaginate(config('params.per_page'));
+        $qb = $qb->filter($request)
+                ->orderByCus($request)
+                ->cursorPaginate(config('params.per_page'));
        
         return $qb;
     }

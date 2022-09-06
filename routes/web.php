@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Admin\SliderController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,50 +14,35 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-$prefix = 'admin';
+$prefixAdmin = 'admin';
 
-Route::group(['prefix' => $prefix], function() use($prefix){
-    Route::name($prefix .'.')->group(function () {
-        Route::get('login', ['\App\Http\Controllers\Auth\LoginController', 'showFormLogin'])->name('login.form')->middleware('check.login');
-        Route::post('login', ['\App\Http\Controllers\Auth\LoginController', 'login'])->name('login');
-        Route::post('logout', ['\App\Http\Controllers\Auth\LoginController', 'logout'])->name('logout');
+Route::group(['prefix' => $prefixAdmin], function() use($prefixAdmin){
+    Route::name($prefixAdmin .'.')->group(function () {
+        Route::get('login', [LoginController::class, 'showFormLogin'])->name('login.form')->middleware('check.login');
+        Route::post('login', [LoginController::class, 'login'])->name('login');
+        Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     });
 });
 
 
-Route::group(['prefix' => $prefix,'middleware' => ['permission.admin']], function() use($prefix){
-    Route::name($prefix .'.')->group(function () {
+Route::group([
+            'prefix' => $prefixAdmin,
+            'middleware' => ['permission.admin']
+], function() use($prefixAdmin){
+    Route::name($prefixAdmin .'.')->group(function () {
         
         // DASHBOARD
         Route::get('dashboard', function () { return view('admin.dashboard');})->name('dashboard');
 
         //SLIDER
-        Route::name('slider.')->group(function () {
-            Route::get('slider', ['App\Http\Controllers\Admin\SliderController', 'index'])->name('index');
-            Route::any('slider/form', ['App\Http\Controllers\Admin\SliderController', 'form'])->name('form'); # phải để any
-            Route::post('store', ['App\Http\Controllers\Admin\SliderController', 'store'])->name('store');
-            Route::post('delete-data', ['App\Http\Controllers\Admin\SliderController', 'deleteData'])->name('deleteData');
-            Route::post('upload-image', ['App\Http\Controllers\Admin\SliderController', 'uploadImage'])->name('uploadImage');
-            Route::post('update-status', ['App\Http\Controllers\Admin\SliderController', 'updateStatus'])->name('updateStatus');
-            Route::post('update-ordering', ['App\Http\Controllers\Admin\SliderController', 'updateOrdering'])->name('updateOrdering');
+        $slider = 'slider';
+        Route::group(['prefix'=> $slider, 'as'=> $slider .'.'], function(){
+            Route::get('/', [SliderController::class, 'index'])->name('index');
+            Route::any('form', [SliderController::class, 'form'])->name('form'); # phải để any
+            Route::post('store', [SliderController::class, 'store'])->name('store');
+            Route::post('delete-data', [SliderController::class, 'deleteData'])->name('deleteData');
+            Route::post('update-status', [SliderController::class, 'updateStatus'])->name('updateStatus');
+            Route::post('update-ordering', [SliderController::class, 'updateOrdering'])->name('updateOrdering');
         });
     });
 });
-
-
-
-
-
-
-
-
-
-// SLIDER  
-// // Route::get('slider', ['App\Http\Controllers\Admin\SliderController', 'index'])->name('slider');
-// Route::any('form', ['App\Http\Controllers\Admin\SliderController', 'form'])->name('form'); # phải để any
-// Route::post('store', ['App\Http\Controllers\Admin\SliderController', 'store'])->name('store');
-// Route::post('delete-data', ['App\Http\Controllers\Admin\SliderController', 'deleteData'])->name('deleteData');
-// Route::post('upload-image', ['App\Http\Controllers\Admin\SliderController', 'uploadImage'])->name('uploadImage');
-// Route::post('update-status', ['App\Http\Controllers\Admin\SliderController', 'updateStatus'])->name('updateStatus');
-// Route::post('update-ordering', ['App\Http\Controllers\Admin\SliderController', 'updateOrdering'])->name('updateOrdering');
-
