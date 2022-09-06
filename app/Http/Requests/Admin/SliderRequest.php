@@ -26,7 +26,7 @@ class SliderRequest extends FormRequest
         return [
             'name'              => 'required',
             'href'              => 'required|url',
-            // 'image'             => 'image',
+            'image'             => 'required|image|mimes:jpeg,jpg,png|max:10000', // max 10000kb
             'description'       => 'required',
             'status'            => 'not_in:0',
             'ordering'          => 'required|integer',
@@ -37,15 +37,13 @@ class SliderRequest extends FormRequest
 
     public function attributes()
     {
-        return [
-            'name'              => 'Tên',
-            'href'              => 'Href',
-            'description'       => 'Miêu tả',
-            'status'            => 'Trạng thái',
-            'ordering'          => 'Vị trí',
-            'date_show_start'   => 'Ngày bắt đầu trình bày',
-            'date_show_end'     => 'Ngày kết thúc trình bày ',
-        ];
+        $attributes =  collect(require(app_path('Helpers/Form/config/slider.php')))->map(function ($item) {
+            return $item['label'];
+        })->toArray();
+
+        $attributes['image'] = 'Hình ảnh';
+
+        return $attributes;
     }
 
     public function messages()
@@ -63,6 +61,10 @@ class SliderRequest extends FormRequest
             'date_show_end.required'        => __('messages.required'),
             'date_show_end.date'            => __('messages.date'),
             'date_show_end.after_or_equal'  => __('messages.after_or_equal'),
+            'image.required'                => __('messages.required'),
+            'image.image'                   => __('messages.image'),
+            'image.mimes'                   => __('messages.image'),
+            'image.max'                     => __('messages.image_max'),
         ];
     }
 }

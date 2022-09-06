@@ -73,7 +73,7 @@
         </div>
       </div>
 
-    @include('layouts.menus')
+    @include('admin.layouts.menus')
     </div>
   </aside>
 
@@ -94,6 +94,7 @@
 <script src="{{ asset('plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('plugins/bootstrap-datepicker/js/bootstrap-datepicker.js') }}"></script>
 <script src="{{ asset('js/adminlte.min.js') }}"></script>
+<script src="{{ asset('js/base.js') }}"></script>
 <script type="text/javascript">
     jQuery(function () {
       jQuery.ajaxSetup({

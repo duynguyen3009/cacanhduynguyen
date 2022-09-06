@@ -1,4 +1,7 @@
-@extends('layouts.master')
+@php
+    $pathImg = "storage".DIRECTORY_SEPARATOR."sliders";
+@endphp
+@extends('admin.layouts.master')
 @section('main')
 
 <x-search :request="$request"/>
@@ -14,7 +17,7 @@
         <table class="table table-bordered" id="listSlider">
             <thead>
                 <tr>
-                    <th style="width: 3%"><input type="checkbox" name="check_all" id="check_all" onclick="checkAll(this)"></th>
+                    <th style="width: 3%"><input type="checkbox" name="check_all" id="check_all" onclick="base.list.toggleCheckboxSelection(this)"></th>
                     <th style="width: 3%">#</th>
                     <th style="width: 15%">Tên Slider</th>
                     <th style="width: 30%">Nội dung</th>
@@ -26,10 +29,6 @@
             </thead>
             <tbody>
                 @foreach ($records as $i => $record)
-                    @php
-                        $classStatus = ($record->status == 'active') ? 'success' : 'secondary';
-                        $valueStatus = ($record->status == 'active') ? 'Kích hoạt' : 'Chưa kích hoạt';
-                    @endphp
                     <tr>
                         <td><input type="checkbox" name="selections[]" value="{{ $record->id }}"></td>
                         <td>{{ $i+1 }}</td>
@@ -37,7 +36,7 @@
                           <a href="javascript:void(0)" 
                             data-href="{{ route('admin.slider.form') }}"
                             data-id="{{ $record->id }}"
-                            onclick="showFormEdit(this)">
+                            onclick="base.list.redirectToEditPage(this, 'transformSearch')">
                             {{ $record->name }}
                           </a>
                         </td>
@@ -45,7 +44,7 @@
                         <td>
                             <div class="row" >
                                 <div class="col-12">
-                                    <img src="{{ asset("storage/sliders") . '/' .$record->image }}" width="100%" height="100"/>
+                                    <img src="{{ asset($pathImg) . DIRECTORY_SEPARATOR . $record->image }}" width="100%" height="100"/>
                                 </div>
                             </div>
                             <div class="row" >
@@ -75,7 +74,8 @@
                                         id="status-{{ $record->id }}" 
                                         name="status"
                                         data-id="{{ $record->id }}"
-                                        onclick="updateStatus(this)"
+                                        data-href="{{ route("admin.slider.updateStatus") }}"
+                                        onclick="base.list.updateStatus(this)"
                                 >
                                 <label class="custom-control-label" for="status-{{ $record->id }}"></label>
                             </div>
@@ -87,18 +87,11 @@
                                     data-id="{{ $record->id }}"
                                     id="ordering-{{ $record->id }}"
                                     value="{{ $record->ordering }}" 
+                                    data-href="{{ route("admin.slider.updateOrdering") }}"
                                     readonly
-                                    onchange="updateOrdering(this)"
+                                    onchange="base.list.updateOrdering(this)"
                               >
                             </div>
-                            {{-- <input class="form-control ordering" 
-                                  type="text" 
-                                  data-id="{{ $record->id }}"
-                                  id="ordering-{{ $record->id }}"
-                                  value="{{ $record->ordering }}" 
-                                  readonly
-                            > --}}
-                            
                         </td>
                     </tr>
                 @endforeach
@@ -122,123 +115,46 @@
   <script src="{{ asset('plugins/sweetalert/sweetalert.min.js') }}" type="text/javascript"></script>
   <script src="{{ asset('plugins/notify.min.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
-    function updateStatus(element)
-    {
-      var url = '{{ route("admin.slider.updateStatus") }}';
-      var dataSend = {
-        id      : $(element).data('id'),
-        status  : $(element).is(':checked'),
-      };
-      $.ajax({
-        type: "POST",
-        url: url,
-        data: dataSend,
-        success: function (res) {
-          if (res.success) {
-            $(element).notify(res.msg, { 
-                className: 'success',
-              }
-            );
-          }
-        }
-      });
-    }
-
-    // remove attribute readonly
-    $("input.ordering").dblclick(function(){
-      $(this).removeAttr("readonly");
-    });
-
-    //update ordering
-    function updateOrdering(element)
-    {
-      var url = '{{ route("admin.slider.updateOrdering") }}';
-      var dataSend = {
-        id        : $(element).data('id'),
-        ordering  : $(element).val(),
-      };
-      $.ajax({
-        type: "POST",
-        url: url,
-        data: dataSend,
-        success: function (res) {
-        if (res.success) {
-            $(element).prop('readonly', true);
-            $(element).siblings('span.text-danger').remove();
-            $(element).removeClass('is-invalid');
-            
-            $(element).notify(res.msg, { 
-                className: 'success',
-              }
-            );
-          }
-        },
-        error: function(jqXHR, status, error) {
-          var res = jqXHR.responseJSON;
-          $(element).removeClass('is-invalid');
-          $(element).addClass('is-invalid');
-          $(element).siblings('span.text-danger').remove();
-          $(element).after(`<span class="text-danger">${res.errors}</span>`);
-        }
-      });
-    }
-
     // delete
     function deleteData() {
-      event.preventDefault(); // prevent form submit
-      var selections = new Array();
+      // event.preventDefault(); // prevent form submit
+      // var selections = new Array();
 
-      $('input[name="selections[]"]:checked').each(function() {
-        selections.push($(this).val());
-      });
+      // $('input[name="selections[]"]:checked').each(function() {
+      //   selections.push($(this).val());
+      // });
       
-      if (selections.length == 0) {
-        $.notify('Bạn chưa chọn dòng để xóa !', { 
-            position: 'top left',
-            className: 'error',
-          }
-        );
-        return
-      }
-      swal({
-            title: `Bạn đang chọn và muốn xóa ${selections.length} dòng ?`,
-            text: "Các id sau: " + selections,
-            icon: "warning",
-            buttons: ["Hủy", "Chấp nhận xóa"],
-            dangerMode: true,
-           })
-          .then((willDelete) => {
-            if (willDelete) {
-              var url = "{{ route('admin.slider.deleteData') }}" ;
-              var dataSend = selections.reduce(function(o, val) { o[val] = val; return o; }, {});
-              $.ajax({
-                type: "POST",
-                url: url,
-                data: dataSend,
-                success: function (res) {
-                  if (res.success) {
-                    $.notify(res.msg, {className: 'success',});
-                    location.reload();
-                  }
-                }
-              });
-            } 
-        });
-    }
-
-    // check all
-    function checkAll(element)
-    {
-      var checked = $(element).prop('checked');
-      $('#listSlider').find('input[name="selections[]"]').prop('checked', checked);
-    }
-
-    //showFormEdit
-    function showFormEdit(element)
-    {
-      var id = $(element).data('id');
-      $('#transformSearch input[type=hidden][name=id]').val(id);
-      $('#transformSearch').attr('action', $(element).data('href')).submit();
+      // if (selections.length == 0) {
+      //   $('#delete-data').notify('Bạn chưa chọn dòng để xóa !', { 
+      //       className: 'error',
+      //     }
+      //   );
+      //   return
+      // }
+      // swal({
+      //       title: `Bạn đang chọn và muốn xóa ${selections.length} dòng ?`,
+      //       text: "Các id sau: " + selections,
+      //       icon: "warning",
+      //       buttons: ["Hủy", "Chấp nhận xóa"],
+      //       dangerMode: true,
+      //      })
+      //     .then((willDelete) => {
+      //       if (willDelete) {
+      //         var url = "{{ route('admin.slider.deleteData') }}" ;
+      //         var dataSend = selections.reduce(function(o, val) { o[val] = val; return o; }, {});
+      //         $.ajax({
+      //           type: "POST",
+      //           url: url,
+      //           data: dataSend,
+      //           success: function (res) {
+      //             if (res.success) {
+      //               $.notify(res.msg, {className: 'success',});
+      //               location.reload();
+      //             }
+      //           }
+      //         });
+      //       } 
+      //   });
     }
   </script>
 @endpush

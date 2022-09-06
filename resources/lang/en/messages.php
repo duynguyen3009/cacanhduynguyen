@@ -5,10 +5,10 @@ return [
     'integer'           => ':attribute phải là số nguyên !',
     'date'              => ':attribute không đúng định dạng !',
     'after_or_equal'    => ':attribute không được sớm hơn ngày bắt đầu !',
+    'image'             => ':attribute không phải là hình ảnh !',
+    'image_max'         => ':attribute quá lớn <= 10000kb !',
 
     // another
-    'incorrect_extension' => 'Không đúng định dạng file !',
-    'update_status_success' => ":table :  :value \n được cập nhật trạng thái thành công!",
-    'update_ordering_success' => ":table :  :value \n được cập nhật vị trí thành công!",
-    'delete_recored_success' => "Xóa thành công các id: :ids",
+    'update_success'            => "Cập nhật :attribute thành công!",
+    'delete_recored_success'    => "Xóa thành công các id: :ids",
 ];

@@ -3,32 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Models\AdminModel;
 
-class Sliders extends Model
+class Sliders extends AdminModel
 {
     use HasFactory;
 
     protected $table    = 'sliders';
     protected $fillable = ['name', 'image', 'href', 'description', 'status', 'ordering', 'date_show_start', 'date_show_end'];
-
-
-    public function scopeFilter($query, $request)
-    {
-        if (isset($request['q']) && $request['q'] != null) {
-            $query->orWhere(function($qb) use($request){
-                foreach ($request['fieldsAcceptSearch'] as $column) {
-                    $qb->orWhere($column, 'LIKE', '%' . $request['q'] . '%');
-                }
-            });
-        }
-        if (isset($request['s']) && $request['s'] != 0) {
-            $query->where('status', $request['s']);
-        }
-  
-        return $query;
-    }
 
     public function dateShowStart(): Attribute
     {

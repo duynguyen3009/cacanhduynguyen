@@ -11,6 +11,7 @@
                             'o' => $o,
                         ];
     $currentRouteName = \Request::route()->getName();
+    $urlDelete = route('admin.'.\Request::segment(2).'.deleteData');
 @endphp
 <div class="content-header">
     <div class="container-fluid">
@@ -42,8 +43,12 @@
 </div>
 <hr>
 <div class="d-flex justify-content-between m-3">
-    <div>
-        <button type="button" class="btn btn-danger" onclick="deleteData()">Xóa</button>
+    <div id="delete-data">
+        <button type="button" class="btn btn-danger" 
+                data-href="{{ $urlDelete }}"
+                onclick="base.list.deleteData(this)">
+                Xóa
+        </button>
     </div>
     <div>
         <form action="#" method="post" id="transformSearch">

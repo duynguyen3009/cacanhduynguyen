@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends('admin.layouts.master')
 @section('main')
     <!-- Content Header (Page header) -->
     <div class="content-header">
