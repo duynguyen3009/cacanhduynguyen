@@ -12,6 +12,12 @@ $menus = [
                 'active'    => ['admin.slider.index', 'admin.slider.form'],
                 'icon'      => 'nav-icon far fa-image'
             ],
+            'category'  => [
+                'txt'       => $siteTitles['admin.category.index'],
+                'href'      => route('admin.category.index'),
+                'active'    => ['admin.category.index', 'admin.category.form'],
+                'icon'      => 'nav-icon far fa-image'
+            ],
 ];
     $routeName  = \Request::route()->getName();
 @endphp

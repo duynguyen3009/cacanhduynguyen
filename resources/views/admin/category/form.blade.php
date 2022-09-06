@@ -1,8 +1,8 @@
 @php
     $status     = config('params.status');
-    $titleForm  = empty($record) ? config('params.action.add') . ' Slider' : config('params.action.edit') . ' Slider';
+    $titleForm  = empty($record) ? config('params.action.add') . ' Category' : config('params.action.edit') . ' Category';
     $blade = [
-        'inputs' => require(app_path('Helpers/Form/config/slider.php'))
+        'inputs' => require(app_path('Helpers/Form/config/category.php'))
     ];
 @endphp
 @extends('admin.layouts.master')
@@ -12,7 +12,7 @@
       <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <a href="{{ route('admin.slider.index', @$request['transform_search']) }}" class="btn btn-outline-info">&laquo; Trang trước</a>
+                <a href="{{ route('admin.category.index', @$request['transform_search']) }}" class="btn btn-outline-info">&laquo; Trang trước</a>
             </div>
         </div>
       </div><!-- /.container-fluid -->
@@ -20,7 +20,7 @@
 
     <!-- Main content -->
     <section class="content">
-        <form action="{{ route('admin.slider.store') }}" method="post" id="formAdd" enctype="multipart/form-data">
+        <form action="{{ route('admin.category.store') }}" method="post" id="formAdd" enctype="multipart/form-data">
             @csrf
             @if (!empty($record))
                 <input type="hidden" name="id" value="{{ $record->id }}">
@@ -39,22 +39,6 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="form-group">
-                                <label for="image">Hình ảnh</label>
-                                <span class="text-danger font-weight-bold">*</span>
-                                <input type="file" name="image" class="form-control-file" accept="image/*">
-                                @if (!empty($record))
-                                    <input type="hidden" name="old_image" value="{{ $record->image }}" >
-                                @endif
-                            </div>
-                            <div class="form-group" id="preview-image">
-                                @if (!empty($record))
-                                     <img src="{{ asset("storage/sliders") . '/' .$record->image }}" width="200" height="100"/>
-                                @endif
-                            </div>
-                            <span class="text-danger error" id="image_error" ></span>
-                            <br />
-                            <br />
                             @foreach ($blade['inputs'] as $column => $config)
                                 @switch($config['type'])
                                     @case('input')
@@ -67,26 +51,8 @@
                                         <br />
                                         <br />
                                     @break
-                                    @case('datepicker')
-                                        <div class="form-group has-feedback mb-05">
-                                            <label for="{{ $column }}">{{ $config['label'] }}</label>
-                                            <span class="text-danger font-weight-bold">*</span>
-                                            <input type="text" name="{{ $column }}" value="{{ old($column, @$record->$column) }}" class="form-control datepicker" id="{{ $column }}">
-                                        </div>
-                                        <span class="text-danger error" id="{{ $column }}_error" ></span>
-                                        <br />
-                                        <br />
-                                    @break
-                                    @case('textarea')
-                                        <div class="form-group mb-05">
-                                            <label for="{{ $column }}">{{ $config['label'] }}</label>
-                                            <span class="text-danger font-weight-bold">*</span>
-                                            <textarea id="{{ $column }}" name="{{ $column }}" class="form-control" rows="4">{{ old($column, @$record->$column) }}</textarea>
-                                        </div>
-                                        <span class="text-danger error" id="{{ $column }}_error" ></span>
-                                        <br />
-                                        <br />
-                                    @break
+                                    
+                                    
                                     @case('select')
                                         <div class="form-group mb-05">
                                             <label for="{{ $column }}">{{ $config['label'] }}</label>
@@ -140,37 +106,6 @@
 @endpush
 @push('js')
     <script type="text/javascript">
-      //Reset input file
-      $('input[type="file"][name="image"]').val('');
-
-      //Image preview
-      $('input[type="file"][name="image"]').on('change', function(){
-          var img_path    = $(this)[0].value;
-          var previewImg  = $('#preview-image');
-          var extension   = img_path.substring(img_path.lastIndexOf('.')+1).toLowerCase();
-
-          const extensions  = ["jpeg", "jpg", "png"];
-          isExtAccept       = extensions.includes(extension);
-          
-          if (!(isExtAccept)) {
-            $(previewImg).empty();
-            $(previewImg).html("<span class='text-danger'>Định dạng không hợp lệ </span>");
-          } else {
-              if (typeof(FileReader) != 'undefined') {
-                previewImg.empty();
-                var reader = new FileReader();
-                reader.onload = function(e){
-                    $('<img/>',{'src':e.target.result,  'style':'max-width:250px; max-height: 150px; margin-bottom:10px;'}).appendTo(previewImg);
-                }
-                previewImg.show();
-                reader.readAsDataURL($(this)[0].files[0]);
-              } else {
-                $(previewImg).html("<span class='text-danger'>Định dạng không hợp lệ </span>");
-              }
-          }
-
-      });
-
       // save
       $('#formAdd').on('submit', function(e){
           e.preventDefault();

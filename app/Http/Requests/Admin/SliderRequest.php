@@ -23,10 +23,18 @@ class SliderRequest extends FormRequest
      */
     public function rules()
     {
+        $input      = $this->all();
+        $required   = 'required';
+        if (isset($input['id'])) {
+            $required = null;
+            if (isset($input['image'])) {
+                $required = 'required';
+            }
+        }
         return [
             'name'              => 'required',
             'href'              => 'required|url',
-            'image'             => 'required|image|mimes:jpeg,jpg,png|max:10000', // max 10000kb
+            'image'             => "$required|image|mimes:jpeg,jpg,png|max:10000", // max 10000kb
             'description'       => 'required',
             'status'            => 'not_in:0',
             'ordering'          => 'required|integer',

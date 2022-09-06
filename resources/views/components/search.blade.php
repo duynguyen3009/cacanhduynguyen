@@ -12,6 +12,7 @@
                         ];
     $currentRouteName = \Request::route()->getName();
     $urlDelete = route('admin.'.\Request::segment(2).'.deleteData');
+    $urlForm   = route('admin.'.\Request::segment(2).'.form');
 @endphp
 <div class="content-header">
     <div class="container-fluid">
@@ -60,7 +61,7 @@
                 @endif
             @endforeach
         </form>
-        <button type="button" data-href="{{ route('admin.slider.form') }}" 
+        <button type="button" data-href="{{ $urlForm }}" 
             class="btn btn-success"
             onclick="$('#transformSearch').attr('action', $(this).data('href')).submit()"
             >+ Thêm

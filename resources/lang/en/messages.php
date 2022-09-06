@@ -10,5 +10,6 @@ return [
 
     // another
     'update_success'            => "Cập nhật :attribute thành công!",
+    'insert_success'            => "Bạn đã thêm :attribute thành công!",
     'delete_recored_success'    => "Xóa thành công các id: :ids",
 ];

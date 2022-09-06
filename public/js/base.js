@@ -2,6 +2,9 @@ base = typeof(window.base) === 'object' ? window.base : {};
 
 base.list  = typeof(base.list) === 'object' ? base.list : {};
 
+base.msgs = {
+  remind_delete: '',
+}
 /****************list *****************************/ 
 
 // remove attribute readonly
@@ -84,7 +87,7 @@ base.list.deleteData = function(el) {
   });
       
   if (selections.length == 0) {
-    $(el).notify('Bạn chưa chọn dòng để xóa !', { 
+    $(el).notify(base.msgs.remind_delete, { 
         className: 'error',
       }
     );
