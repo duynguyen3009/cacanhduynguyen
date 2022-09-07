@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Http\Repositories\SliderRepository;
 use App\Http\Requests\Admin\SliderRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Validator;
 use DB;
 
-class SliderController extends Controller
+class SliderController extends AdminController
 {
     protected $sliderRepository;
     protected $fieldsAcceptSearch   = ['id', 'name', 'href', 'description'];
@@ -102,46 +100,6 @@ class SliderController extends Controller
             'url'       => route('admin.slider.index'),
         ]);
 
-    }
-
-    public function updateStatus(Request $request)
-    {
-        $request = $request->all();
-        $record  = $this->sliderRepository
-                     ->updateStatus(Arr::only($request, ['id', 'status']));
-        return response()->json([
-            'success' => true,
-            'msg'     => __('messages.update_success', ['attribute' => 'status']),
-        ]);
-    }
-    
-    public function updateOrdering(Request $request)
-    {
-        $request  = $request->all();
-       
-        // Setup the validator
-        $rules = ['ordering' => 'required|integer'];
-        $messages = [
-                    'ordering.required'    => __('messages.required', ['attribute' => 'Vị trí']),
-                    'ordering.integer'     => __('messages.integer', ['attribute' => 'Vị trí']),
-        ];
-        $validator = Validator::make($request, $rules, $messages);
-
-        // Validate the input and return correct response
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors'  => $validator->errors()->first()
-
-            ], 422); // 400 being the HTTP code for an invalid request.
-        }
-        $record   = $this->sliderRepository
-                     ->updateOrdering(Arr::only($request, ['id', 'ordering']));
-
-        return response()->json([
-            'success'  => true,
-            'msg'     => __('messages.update_success', ['attribute' => 'vị trí']),
-        ]);
     }
 
     public function deleteData(Request $request)

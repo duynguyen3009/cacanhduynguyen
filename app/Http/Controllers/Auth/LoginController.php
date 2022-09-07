@@ -10,9 +10,6 @@ class LoginController extends Controller
 {
     public function showFormLogin()
     {
-        // if (Auth::check()) {
-        //     return redirect()->route('admin.login')->with('msg', 'login de');
-        // }
         return view('admin.login');
     }
 
@@ -26,7 +23,7 @@ class LoginController extends Controller
 
         if (!Auth::attempt($data)) {
             return redirect()->route('admin.login')
-                    ->with('msg', 'Tên đăng nhập hoặc mật khẩu chưa đúng!');;
+                    ->with('msg', __('messages.login_fail'));;
         } 
 
         return redirect()->route('admin.dashboard');
