@@ -2,11 +2,11 @@
 
 namespace App\Http\Repositories;
 use App\Models\Categories as MainModel;
-use App\Helpers\Formatter;
+use App\Helpers\AdminProcess;
 
 class CategoryRepository
 {
-
+    protected $table = 'categories';
     public function list($request)
     {
         $qb = MainModel::query();
@@ -38,22 +38,12 @@ class CategoryRepository
 
     public function updateStatus($formFields)
     {
-        $record = MainModel::findOrFail($formFields['id']);
-        
-        $record->status = Formatter::convertStatus($formFields['status']);
-        
-        $record->save();
-        return $record;
+        AdminProcess::updateStatus($this->table, $formFields);
     }
 
     public function updateOrdering($formFields)
     {
-        $record = MainModel::findOrFail($formFields['id']);
-        
-        $record->ordering = $formFields['ordering'];
-        
-        $record->save();
-        return $record;
+        AdminProcess::updateOrdering($this->table, $formFields);
     }
 
     public function deleteData($ids)
@@ -68,10 +58,4 @@ class CategoryRepository
         return $record;
     }
 
-    // public function getRecords($ids)
-    // {
-    //     $records = MainModel::whereIn('id', $ids);
-
-    //     return $records;
-    // }
 }
