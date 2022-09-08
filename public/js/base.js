@@ -118,3 +118,41 @@ base.list.deleteData = function(el) {
         } 
     });
 }
+
+
+// FORM
+$('#formAdd').on('submit', function(e){
+  e.preventDefault();
+  var form = this;
+  $.ajax({
+      url     : $(form).attr('action'),
+      method  : $(form).attr('method'),
+      data    : new FormData(form),
+      processData:false,
+      dataType:'json',
+      contentType:false,
+      beforeSend:function(){
+          $(form).find('span.error').text('');
+      },
+      success:function(res){
+          if (res.success) {
+            $('form#tmpForm').attr('action', res.url).submit();
+          }
+      },
+      error: function(jqXHR, status, error) {
+        switch (jqXHR.status) {
+            case 422:
+              $.each(jqXHR.responseJSON.errors, function (column, msg){
+                $(form).find('span#'+column+'_error').text(msg);
+              });
+            break;
+        
+            default:
+              alert('SERVER ERROR');
+              return
+            break;
+        }
+        
+      }
+  });
+});

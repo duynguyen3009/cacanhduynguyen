@@ -16,7 +16,7 @@ $menus = [
                 'txt'       => $siteTitles['admin.category.index'],
                 'href'      => route('admin.category.index'),
                 'active'    => ['admin.category.index', 'admin.category.form'],
-                'icon'      => 'nav-icon far fa-image'
+                'icon'      => 'nav-icon far fa-regular fa-envelope'
             ],
 ];
     $routeName  = \Request::route()->getName();
