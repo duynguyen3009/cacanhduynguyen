@@ -58,48 +58,39 @@
                             @foreach ($blade['inputs'] as $column => $config)
                                 @switch($config['type'])
                                     @case('input')
-                                        <div class="form-group mb-05">
-                                            <label for="{{ $column }}">{{ $config['label'] }}</label>
-                                            <span class="text-danger font-weight-bold">*</span>
-                                            <input type="text" id="{{ $column }}" name="{{ $column }}" value="{{ old($column, @$record->$column) }}" class="form-control">
-                                        </div>
-                                        <span class="text-danger error" id="{{ $column }}_error" ></span>
+                                        @include('admin.card-form.input', [
+                                            'label'     => $config['label'],
+                                            'column'    => $column,
+                                            'value'     => @$record->$column
+                                        ])
                                         <br />
                                         <br />
                                     @break
                                     @case('datepicker')
-                                        <div class="form-group has-feedback mb-05">
-                                            <label for="{{ $column }}">{{ $config['label'] }}</label>
-                                            <span class="text-danger font-weight-bold">*</span>
-                                            <input type="text" name="{{ $column }}" value="{{ old($column, @$record->$column) }}" class="form-control datepicker" id="{{ $column }}">
-                                        </div>
-                                        <span class="text-danger error" id="{{ $column }}_error" ></span>
+                                        @include('admin.card-form.datepicker', [
+                                                'label'     => $config['label'],
+                                                'column'    => $column,
+                                                'value'     => @$record->$column
+                                        ])
                                         <br />
                                         <br />
                                     @break
                                     @case('textarea')
-                                        <div class="form-group mb-05">
-                                            <label for="{{ $column }}">{{ $config['label'] }}</label>
-                                            <span class="text-danger font-weight-bold">*</span>
-                                            <textarea id="{{ $column }}" name="{{ $column }}" class="form-control" rows="4">{{ old($column, @$record->$column) }}</textarea>
-                                        </div>
-                                        <span class="text-danger error" id="{{ $column }}_error" ></span>
+                                        @include('admin.card-form.textarea', [
+                                                'label'     => $config['label'],
+                                                'column'    => $column,
+                                                'value'     => @$record->$column
+                                        ])
                                         <br />
                                         <br />
                                     @break
                                     @case('select')
-                                        <div class="form-group mb-05">
-                                            <label for="{{ $column }}">{{ $config['label'] }}</label>
-                                            <span class="text-danger font-weight-bold">*</span>
-                                            <select class="form-control" name="{{ $column }}">
-                                                @foreach ($status as $key => $v)
-                                                    <option value="{{ $key }}" {{ (old($column) == $key) || (@$record->$column == $key) ? "selected" :""}}>
-                                                        {{ $v }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <span class="text-danger error" id="{{ $column }}_error" ></span>
+                                    @include('admin.card-form.select', [
+                                            'label'     => $config['label'],
+                                            'column'    => $column,
+                                            'items'     => $status,
+                                            'value'     => @$record->$column,
+                                        ])
                                         <br />
                                         <br />
                                     @break
@@ -169,43 +160,6 @@
               }
           }
 
-      });
-
-      // save
-      $('#formAdd').on('submit', function(e){
-          e.preventDefault();
-          var form = this;
-          $.ajax({
-              url     : $(form).attr('action'),
-              method  : $(form).attr('method'),
-              data    : new FormData(form),
-              processData:false,
-              dataType:'json',
-              contentType:false,
-              beforeSend:function(){
-                  $(form).find('span.error').text('');
-              },
-              success:function(res){
-                  if (res.success) {
-                    $('form#tmpForm').attr('action', res.url).submit();
-                  }
-              },
-              error: function(jqXHR, status, error) {
-                switch (jqXHR.status) {
-                    case 422:
-                      $.each(jqXHR.responseJSON.errors, function (column, msg){
-                        $(form).find('span#'+column+'_error').text(msg);
-                      });
-                    break;
-                
-                    default:
-                      alert('SERVER ERROR');
-                      return
-                    break;
-                }
-                
-              }
-          });
       });
     </script>
 @endpush

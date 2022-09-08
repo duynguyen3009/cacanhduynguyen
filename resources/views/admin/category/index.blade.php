@@ -84,8 +84,6 @@
 </style>
 @endpush
 @push('js')
-  <script src="{{ asset('plugins/sweetalert/sweetalert.min.js') }}" type="text/javascript"></script>
-  <script src="{{ asset('plugins/notify.min.js') }}" type="text/javascript"></script>
   <script type="text/javascript">
     $.extend(base.msgs, @json($msgs));
   </script>

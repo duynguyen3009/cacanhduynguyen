@@ -93,6 +93,8 @@
 <script src="{{ asset('plugins/jquery-ui/jquery-ui.min.js') }}"></script>
 <script src="{{ asset('plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('plugins/bootstrap-datepicker/js/bootstrap-datepicker.js') }}"></script>
+<script src="{{ asset('plugins/sweetalert/sweetalert.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('plugins/notify.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('js/adminlte.min.js') }}"></script>
 <script src="{{ asset('js/base.js') }}"></script>
 <script type="text/javascript">
